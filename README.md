@@ -1,73 +1,81 @@
-# Welcome to your Lovable project
+# Energy Pattern Discovery Tracker
 
-## Project info
+A mobile-friendly energy tracking application for Employee Assistance Programmes (EAP). Track energy levels, discover personal patterns, and get actionable insights.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- **Energy Logging** — Log energy on a 1-5 scale with contributing factors
+- **Pattern Discovery** — Automated correlation analysis reveals what impacts your energy
+- **Today's Timeline** — Visual timeline of energy levels throughout the day
+- **Weekly Trends** — 7-day line chart with trend indicators
+- **Cross-Tracker Insights** — Correlates with sleep, consumption, and withdrawal data
+- **Expert Booking** — Surfaces support options when persistent low energy is detected
+- **Multi-Language** — 10 languages via Google Translate API
+- **History & Export** — Full log history with CSV export
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Animation**: Framer Motion
+- **Charts**: Recharts
+- **Backend**: Supabase (PostgreSQL)
+- **Translation**: Google Translate API
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Environment Variables
 
-Changes made via Lovable will be committed automatically to this repo.
+| Variable | Description |
+|---|---|
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key |
+| `VITE_GOOGLE_TRANSLATE_API_KEY` | Google Cloud Translation API key |
 
-**Use your preferred IDE**
+## Authentication
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+The app uses token-based authentication:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. User arrives with `?token=UUID` URL parameter
+2. Token is validated against `https://api.mantracare.com/user/user-info`
+3. User ID is stored in `sessionStorage`
+4. All subsequent API calls include the authenticated user ID
 
-Follow these steps:
+## Database Tables
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### `energy_logs`
+| Column | Type | Description |
+|---|---|---|
+| `user_id` | BIGINT | Foreign key to users |
+| `timestamp` | TIMESTAMPTZ | When the log was created |
+| `level` | INTEGER (1-5) | Energy level |
+| `factors` | JSONB | Array of contributing factors |
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### `energy_actions` (optional)
+| Column | Type |
+|---|---|
+| `user_id` | BIGINT |
+| `timestamp` | TIMESTAMPTZ |
+| `action_type` | TEXT |
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Cross-tracker tables (optional)
+- `sleep_logs` — Sleep quality data
+- `consumption_logs` — Substance use tracking
+- `withdrawal_logs` — Cessation tracking
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+## Discovery Algorithm
+
+Patterns are calculated when 10+ entries exist:
+
+1. For each factor, calculate average energy WITH and WITHOUT the factor
+2. Compute percentage difference: `((with - without) / without) × 100`
+3. Show as discovery if `|percentage| > 15%` AND sample size > 5
+
+## Development
+
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## License
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Private — EAP Programme Use Only

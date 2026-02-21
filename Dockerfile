@@ -3,13 +3,18 @@ FROM node:20-alpine AS builder
 
 WORKDIR /build
 
+# Install build dependencies
+RUN apk add --no-cache python3 make g++
+
 # Set build environment
 ENV NODE_ENV=production \
     NODE_OPTIONS="--max-old-space-size=2048"
 
-# Install dependencies with multiple fallbacks
-COPY package.json package-lock.json ./
-RUN npm ci --prefer-offline --no-audit 2>&1 || npm install --legacy-peer-deps --no-optional --no-fund 2>&1 || npm install --force
+# Install dependencies
+COPY package.json ./
+RUN npm cache clean --force && \
+    npm install --verbose && \
+    npm list vite
 
 # Copy source
 COPY . .

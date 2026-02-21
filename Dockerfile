@@ -1,26 +1,20 @@
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /build
 
-# Install build dependencies
-RUN apk add --no-cache python3 make g++
-
 # Set build environment
-ENV NODE_ENV=production \
-    NODE_OPTIONS="--max-old-space-size=2048"
+ENV NODE_ENV=production
 
 # Install dependencies
 COPY package.json ./
-RUN npm cache clean --force && \
-    npm install --verbose && \
-    npm list vite
+RUN npm install --production=false
 
 # Copy source
 COPY . .
 
-# Build with verbose output
-RUN npm run build -- --mode production
+# Build
+RUN npm run build
 
 # Serve stage
 FROM nginx:1.24-alpine
